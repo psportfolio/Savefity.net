@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Save to All</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #0f172a;
+            background: linear-gradient(135deg, #0f172a 0%, #312e81 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            left: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+
+        .lang-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .menu-icon {
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+        }
+
+        .menu-icon:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0.95);
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 35px 20px 30px 20px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            z-index: 1;
+        }
+
+        h1 {
+            color: #1e293b;
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 800;
+        }
+
+        .tagline {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .platforms {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .platform {
+            background: #f8fafc;
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: #334155;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .platform img {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+        }
+
+        /* Naya Input Wrapper for Clear Button */
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 16px 40px 16px 16px; /* Right padding badha di gayi hai taaki text clear button ke neeche na aaye */
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .input-box:focus {
+            border-color: #6366f1;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Clear Button Styling */
+        .clear-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #e2e8f0;
+            color: #64748b;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none; /* Default me chhupa rahega */
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .clear-btn:hover {
+            background: #cbd5e1;
+            color: #ef4444;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .download-btn:active {
+            transform: scale(0.96);
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            display: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.show { display: block; }
+        .message.error { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .message.loading { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+        .message.success { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+
+        .download-link {
+            display: block;
+            margin-top: 10px;
+            padding: 12px;
+            background: #16a34a;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .settings-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(3px);
+        }
+
+        .settings-modal.active {
+            display: flex;
+        }
+
+        .settings-content {
+            background: #ffffff;
+            width: 85%;
+            max-width: 350px;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+        }
+
+        .settings-header h2 {
+            font-size: 1.2rem;
+            color: #1e293b;
+        }
+
+        .close-btn {
+            background: #f1f5f9;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .feature-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.95rem;
+            color: #334155;
+            font-weight: 500;
+        }
+
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+
+        .feature-btn {
+            background: #e0e7ff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #4338ca;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="lang-btn" id="langBtn" onclick="toggleLanguage()">🌐 हिंदी</button>
+        <div class="menu-icon" onclick="toggleSettings()">☰</div>
+    </div>
+
+    <div class="container">
+        <h1><span>📥</span> Save to All</h1>
+        <p class="tagline" id="tagline">Video Downloader - 100% Free</p>
+
+        <div class="platforms">
+            <span class="platform"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Insta"> Instagram</span>
+            <span class="platform"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="FB"> Facebook</span>
+            <span class="platform"><img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YT"> YouTube</span>
+            <span class="platform">🎵 Moj</span>
+        </div>
+
+        <!-- Updated Input area with Clear Button -->
+        <div class="input-wrapper">
+            <input type="text" class="input-box" id="urlInput" placeholder="Paste video link here..." autocomplete="off" oninput="toggleClearBtn()">
+            <button class="clear-btn" id="clearBtn" onclick="clearInput()">✖</button>
+        </div>
+
+        <button class="download-btn" onclick="handleDownload()" id="downloadBtn">
+            <span>⬇️</span> <span id="btnText">Download</span>
+        </button>
+
+        <div class="message" id="message"></div>
+    </div>
+
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2 id="settingsTitle">⚙️ Settings & Features</h2>
+                <button class="close-btn" onclick="toggleSettings()">✖</button>
+            </div>
+            
+            <div class="feature-item">
+                <span id="feat1">📖 How to Use</span>
+                <button class="feature-btn" onclick="showHowToUse()">View</button>
+            </div>
+            
+            <div class="feature-item">
+                <span id="feat2">🛡️ Privacy & Safety</span>
+                <button class="feature-btn" onclick="showPrivacy()">View</button>
+            </div>
+
+            <div class="feature-item">
+                <span id="feat5">📧 Contact Us</span>
+                <button class="feature-btn" onclick="showContact()">View</button>
+            </div>
+
+            <div class="feature-item">
+                <span id="feat3">🗑️ Download History</span>
+                <button class="feature-btn" onclick="clearHistory()">Clear</button>
+            </div>
+
+            <div class="feature-item">
+                <span id="feat4">📢 Share App</span>
+                <button class="feature-btn" onclick="shareApp()">Share</button>
+            </div>
+
+            <div style="text-align: center; font-size: 0.75rem; color: #94a3b8; margin-top: 15px;">Version 2.0.0 | Save to All</div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                tagline: "Video Downloader - 100% Free",
+                placeholder: "Paste video link here...",
+                btnText: "Download",
+                emptyError: "❌ Please paste a video link first!",
+                invalidError: "❌ This doesn't look like a valid link!",
+                loading: "⏳ Processing video...",
+                success: "✅ Video is ready!<br><a href='#' class='download-link' onclick='return false;'>⬇️ Download Here</a>",
+                langBtn: "🌐 हिंदी",
+                settingsTitle: "⚙️ Settings & Features",
+                feat1: "📖 How to Use",
+                feat2: "🛡️ Privacy & Safety",
+                feat3: "🗑️ Download History",
+                feat4: "📢 Share App",
+                feat5: "📧 Contact Us",
+                howToUseMsg: "1. Open Instagram, Facebook, YouTube or Moj.\n2. Copy the video link.\n3. Paste the link in the app.\n4. Click Download and save!",
+                privacyMsg: "We do not collect any personal data. All videos are processed directly from their platforms. Your privacy is 100% safe with us.",
+                contactMsg: "For any queries or support, contact us at:\n\ngrowwithsahani@gmail.com",
+                clearMsg: "No history found!",
+                shareMsg: "Sharing not supported on this browser."
+            },
+            hi: {
+                tagline: "वीडियो डाउनलोडर - बिल्कुल फ्री",
+                placeholder: "वीडियो लिंक यहाँ पेस्ट करें...",
+                btnText: "डाउनलोड",
+                emptyError: "❌ कृपया पहले वीडियो लिंक पेस्ट करें!",
+                invalidError: "❌ यह सही लिंक नहीं लग रहा है!",
+                loading: "⏳ वीडियो प्रोसेस हो रहा है...",
+                success: "✅ वीडियो तैयार है!<br><a href='#' class='download-link' onclick='return false;'>⬇️ यहाँ से डाउनलोड करें</a>",
+                langBtn: "🌐 English",
+                settingsTitle: "⚙️ सेटिंग्स और फीचर्स",
+                feat1: "📖 इस्तेमाल कैसे करें",
+                feat2: "🛡️ प्राइवेसी और सुरक्षा",
+                feat3: "🗑️ डाउनलोड हिस्ट्री",
+                feat4: "📢 ऐप शेयर करें",
+                feat5: "📧 संपर्क करें",
+                howToUseMsg: "1. Instagram, Facebook, YouTube या Moj खोलें।\n2. वीडियो का लिंक कॉपी करें।\n3. ऐप में लिंक पेस्ट करें।\n4. डाउनलोड पर क्लिक करें और सेव करें!",
+                privacyMsg: "हम आपका कोई भी पर्सनल डेटा नहीं इकट्ठा करते। सारे वीडियो सीधे उनके प्लेटफॉर्म से प्रोसेस होते हैं। आपकी प्राइवेसी हमारे साथ 100% सुरक्षित है।",
+                contactMsg: "किसी भी सवाल या सहायता के लिए हमसे संपर्क करें:\n\ngrowwithsahani@gmail.com",
+                clearMsg: "कोई हिस्ट्री नहीं मिली!",
+                shareMsg: "शेयर करने के लिए आपका ब्राउज़र सपोर्ट नहीं करता।"
+            }
+        };
+
+        let currentLang = 'en'; 
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'hi' : 'en';
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            const t = translations[currentLang];
+            document.getElementById('tagline').innerText = t.tagline;
+            document.getElementById('urlInput').placeholder = t.placeholder;
+            document.getElementById('btnText').innerText = t.btnText;
+            document.getElementById('langBtn').innerText = t.langBtn;
+            document.getElementById('settingsTitle').innerText = t.settingsTitle;
+            document.getElementById('feat1').innerText = t.feat1;
+            document.getElementById('feat2').innerText = t.feat2;
+            document.getElementById('feat3').innerText = t.feat3;
+            document.getElementById('feat4').innerText = t.feat4;
+            document.getElementById('feat5').innerText = t.feat5;
+            document.getElementById('message').className = 'message';
+        }
+
+        // Clear Button Show/Hide Logic
+        function toggleClearBtn() {
+            const input = document.getElementById('urlInput');
+            const clearBtn = document.getElementById('clearBtn');
+            if (input.value.length > 0) {
+                clearBtn.style.display = 'flex';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+        }
+
+        // Clear Input Function
+        function clearInput() {
+            const input = document.getElementById('urlInput');
+            input.value = '';
+            toggleClearBtn();
+            input.focus(); // Wapas typing ke liye focus
+            document.getElementById('message').className = 'message'; // Message box hide kar do
+        }
+
+        function handleDownload() {
+            const url = document.getElementById('urlInput').value.trim();
+            const messageBox = document.getElementById('message');
+            const t = translations[currentLang];
+            messageBox.className = 'message';
+
+            if (url === '') {
+                messageBox.classList.add('error', 'show');
+                messageBox.innerHTML = t.emptyError;
+                return;
+            }
+
+            if (!url.includes('http') && !url.includes('www.')) {
+                messageBox.classList.add('error', 'show');
+                messageBox.innerHTML = t.invalidError;
+                return;
+            }
+
+            messageBox.classList.add('loading', 'show');
+            messageBox.innerHTML = t.loading;
+
+            setTimeout(function() {
+                messageBox.className = 'message success show';
+                messageBox.innerHTML = t.success;
+            }, 2000);
+        }
+
+        function toggleSettings() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.toggle('active');
+        }
+
+        document.getElementById('settingsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                toggleSettings();
+            }
+        });
+
+        function showHowToUse() {
+            alert(translations[currentLang].howToUseMsg);
+        }
+
+        function showPrivacy() {
+            alert(translations[currentLang].privacyMsg);
+        }
+
+        function showContact() {
+            alert(translations[currentLang].contactMsg);
+        }
+
+        function clearHistory() {
+            alert(translations[currentLang].clearMsg);
+        }
+
+        function shareApp() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Save to All',
+                    text: 'Best Video Downloader App!',
+                    url: window.location.href
+                }).catch(console.error);
+            } else {
+                alert(translations[currentLang].shareMsg);
+            }
+        }
+    </script>
+</body>
+</html>
